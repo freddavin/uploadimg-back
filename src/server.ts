@@ -22,11 +22,15 @@ app.post('/upload', async (req, res) => {
     });
     const { url } = imageBody.parse(req.body);
 
-    try {
-      const newImage = await Image.create({ id: randomUUID(), url });
-      newImage.save();
-      console.log('Image saved successfully');
+    const imageType = url.split(';base64,').shift();
+    if (!imageType?.includes('data:image')) {
+      console.log('This is not an image');
+      res.status(400).json({ message: 'This is not a image' });
+    }
 
+    try {
+      await Image.create({ id: randomUUID(), url });
+      console.log('Image saved successfully');
       res.status(201).json({ message: 'Image uploaded!' });
     } catch (error) {
       console.log('Error on save image on db', error);
