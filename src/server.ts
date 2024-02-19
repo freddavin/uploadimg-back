@@ -16,29 +16,32 @@ app.get('/', (_req, res) => {
 
 app.post('/upload', async (req, res) => {
   try {
-    console.log('Image received');
+    console.log('Images received');
     const imageBody = z.object({
-      url: z.string(),
+      urls: z.array(z.string()),
     });
-    const { url } = imageBody.parse(req.body);
+    const { urls } = imageBody.parse(req.body);
 
-    const imageType = url.split(';base64,').shift();
-    if (!imageType?.includes('data:image')) {
-      console.log('This is not an image');
-      res.status(400).json({ message: 'This is not a image' });
-    }
+    const promises = urls.map(async (url) => {
+      const imageType = url.split(';base64,').shift();
+      if (!imageType?.includes('data:image')) {
+        console.log('This is not an image');
+        return;
+      }
 
-    try {
-      await Image.create({ id: randomUUID(), url });
-      console.log('Image saved successfully');
-      res.status(201).json({ message: 'Image uploaded!' });
-    } catch (error) {
-      console.log('Error on save image on db', error);
-      res.status(500).json({ message: 'Something got wrong' });
-    }
+      try {
+        await Image.create({ id: randomUUID(), url });
+        console.log('Image saved successfully');
+      } catch (error) {
+        console.log('Error on save image on db', error);
+        res.status(500).json({ message: 'Something got wrong' });
+      }
+    });
+    await Promise.all(promises);
+    res.status(201).json({ message: 'Image uploaded!' });
   } catch (error) {
     const { errors } = error as ZodError;
-    const code = errors.map((error) => error.code).join(', ');
+    const code = errors?.map((error) => error.code).join(', ');
     console.log('Error on validation', error);
     res.status(400).json({ message: 'Validation error', code });
   }

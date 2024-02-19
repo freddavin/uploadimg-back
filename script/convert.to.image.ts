@@ -21,7 +21,7 @@ connect()
 
       return Image.updateOne({ id: image.id }, { load: true });
     });
-    Promise.resolve(promises);
+    await Promise.all(promises);
 
     console.log('Process concluded');
   })
