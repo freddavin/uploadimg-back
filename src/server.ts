@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import { connect } from './db';
 import z, { ZodError } from 'zod';
-import { Image } from './models';
 import { randomUUID } from 'crypto';
+import { connect } from './db';
+import { Image } from './models';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -16,6 +16,7 @@ app.get('/', (_req, res) => {
 
 app.post('/upload', async (req, res) => {
   try {
+    console.log('Image received');
     const imageBody = z.object({
       url: z.string(),
     });
@@ -24,13 +25,17 @@ app.post('/upload', async (req, res) => {
     try {
       const newImage = await Image.create({ id: randomUUID(), url });
       newImage.save();
+      console.log('Image saved successfully');
+
       res.status(201).json({ message: 'Image uploaded!' });
     } catch (error) {
+      console.log('Error on save image on db', error);
       res.status(500).json({ message: 'Something got wrong' });
     }
   } catch (error) {
     const { errors } = error as ZodError;
     const code = errors.map((error) => error.code).join(', ');
+    console.log('Error on validation', error);
     res.status(400).json({ message: 'Validation error', code });
   }
 });
@@ -38,7 +43,7 @@ app.post('/upload', async (req, res) => {
 connect().then(() => {
   try {
     app.listen(PORT, () => {
-      console.log(`Listening on port http://localhost:${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
     console.log(error);
