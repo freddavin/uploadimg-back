@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 import { Image } from '../src/models';
-import { connect } from '../src/db';
+import { connect } from '../src/libs/db';
 
 connect()
   .then(async () => {

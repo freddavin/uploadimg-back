@@ -4,8 +4,8 @@ interface IImage {
   id: string;
   url: string;
   load?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const imageSchema = new mongoose.Schema<IImage>(

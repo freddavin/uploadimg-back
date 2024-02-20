@@ -1,9 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-import z, { ZodError } from 'zod';
-import { randomUUID } from 'crypto';
-import { connect } from './db';
-import { Image } from './models';
+import z from 'zod';
+import { connect } from './libs/db';
+import { uploadImages } from './services';
+import { getErrorInfo } from './libs/core/custom.errors';
+import { HttpStatusCode } from './libs/core';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -18,32 +19,17 @@ app.post('/upload', async (req, res) => {
   try {
     console.log('Images received');
     const imageBody = z.object({
-      urls: z.array(z.string()),
+      urls: z.array(z.string().startsWith('data:image/')).nonempty(),
     });
     const { urls } = imageBody.parse(req.body);
 
-    const promises = urls.map(async (url) => {
-      const imageType = url.split(';base64,').shift();
-      if (!imageType?.includes('data:image')) {
-        console.log('This is not an image');
-        return;
-      }
+    await uploadImages(urls);
 
-      try {
-        await Image.create({ id: randomUUID(), url });
-        console.log('Image saved successfully');
-      } catch (error) {
-        console.log('Error on save image on db', error);
-        res.status(500).json({ message: 'Something got wrong' });
-      }
-    });
-    await Promise.all(promises);
-    res.status(201).json({ message: 'Image uploaded!' });
+    res.status(HttpStatusCode.CREATED).json({ message: 'Image uploaded!' });
   } catch (error) {
-    const { errors } = error as ZodError;
-    const code = errors?.map((error) => error.code).join(', ');
-    console.log('Error on validation', error);
-    res.status(400).json({ message: 'Validation error', code });
+    const { code, message, statusCode } = getErrorInfo(error);
+    console.log(`[Error] ${code} - ${message}`, { error });
+    res.status(statusCode).json({ message, code });
   }
 });
 
@@ -53,6 +39,7 @@ connect().then(() => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.log(error);
+    const { code, message } = getErrorInfo(error);
+    console.log(`[Error] ${code} - ${message}`, { error });
   }
 });
