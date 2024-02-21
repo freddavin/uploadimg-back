@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { router as uploadRoutes } from './routes/upload.images';
+import { router as uploadRoutes } from './routes/upload.routes';
 
 export const app = express();
 
