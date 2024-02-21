@@ -17,7 +17,10 @@ connect()
       }
       const type = base64Type.split('/').pop();
       const buffer = Buffer.from(base64Image, 'base64');
-      writeFileSync(`script/images/${image.id}.${type}`, buffer);
+      writeFileSync(
+        `script/images/${new Date().toISOString()}_${image.id}.${type}`,
+        buffer
+      );
 
       return Image.updateOne({ id: image.id }, { load: true });
     });
