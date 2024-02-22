@@ -14,7 +14,10 @@
     "build": "tsup src",
     "start": "node dist/index.js",
     "load": "tsx script/convert.to.image.ts",
-    "test": "jest"
+    "jest": "jest --runInBand --detectOpenHandles --forceExit",
+    "test:unit": "pnpm jest --projects tests/unit -c tests/unit/jest.config.ts",
+    "test:integration": "pnpm jest --projects tests/integration -c tests/integration/jest.config.ts",
+    "test": "pnpm test:unit && pnpm test:integration"
   },
   "dependencies": {
     "cors": "^2.8.5",
