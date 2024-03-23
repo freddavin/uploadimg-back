@@ -1,8 +1,8 @@
 import { writeFileSync } from 'fs';
 import { Image } from '../src/models';
-import { connect } from '../src/libs/db';
+import { bootstrapMongo } from '../src/libs/db';
 
-connect()
+bootstrapMongo()
   .then(async () => {
     console.log('Process start');
 
