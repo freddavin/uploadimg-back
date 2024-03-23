@@ -16,4 +16,6 @@ export const bootstrapGoogleDrive = async () => {
     version: 'v3',
     auth,
   });
+
+  console.log(`Google Drive successfully connected`);
 };
