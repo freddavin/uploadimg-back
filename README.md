@@ -12,10 +12,10 @@ O projeto possui um repositório separado para o frontend acessado pelo link: ht
 
 ## Tecnologias utilizadas
 
-Node
-Typescript
-Google API
-Express
+- Node
+- Typescript
+- Google API
+- Express
 
 ## Link
 
